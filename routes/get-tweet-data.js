@@ -28,6 +28,20 @@ async function getRequest(tweet_id) {
   }
 }
 
+function numFormatter(num) {
+  if (num > 9999 && num < 1000000) {
+    return (num / 1000).toFixed(2).slice(0, -1) + "K";
+  } else if (num > 1000000) {
+    return (num / 1000000).toFixed(2).slice(0, -1) + "M";
+  } else if (num > 999 && num < 9999) {
+    num = num.toString();
+    len_str = num.length;
+    return [num.slice(0, len_str - 3), ",", num.slice(len_str - 3)].join("");
+  } else if (num <= 999) {
+    return num;
+  }
+}
+
 router.post("/", (req, res) => {
   const { pass, tweet_url } = req.body;
   // Validate request
@@ -65,10 +79,12 @@ router.post("/", (req, res) => {
         name: user_data["name"],
         text: tweet_data["text"],
         created_at: tweet_data["created_at"],
-        retweet_count: tweet_data["public_metrics"]["retweet_count"],
-        reply_count: tweet_data["public_metrics"]["reply_count"],
-        like_count: tweet_data["public_metrics"]["like_count"],
-        quote_count: tweet_data["public_metrics"]["quote_count"],
+        retweet_count: numFormatter(
+          tweet_data["public_metrics"]["retweet_count"]
+        ),
+        reply_count: numFormatter(tweet_data["public_metrics"]["reply_count"]),
+        like_count: numFormatter(tweet_data["public_metrics"]["like_count"]),
+        quote_count: numFormatter(tweet_data["public_metrics"]["quote_count"]),
       };
 
       return res.send({ success: true, message: response_data });
@@ -105,4 +121,4 @@ module.exports = router;
 //         }
 //       ]
 //     }
-//   }
+// }
